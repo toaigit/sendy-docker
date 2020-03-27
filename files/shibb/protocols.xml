@@ -1,0 +1,26 @@
+<Protocols xmlns="urn:mace:shibboleth:2.0:native:sp:protocols">
+
+  <!--
+    This is a stripped down protocol configuration for Stanford
+    Shibboleth SPs.
+    It only supports the SAML 2.0 HTTP-POST binding for authentication,
+    and it only supports local logout (federated single logout rarely
+    works, and when it does, it rarely works as expected).
+  -->
+
+  <!-- SAML 2.0 -->
+  <Protocol id="SAML2">
+    <Service id="SSO">
+      <Initiator id="SAML2" />
+      <Binding id="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" path="/SAML2/POST" />
+    </Service>
+  </Protocol>
+
+  <!-- Local Logout -->
+  <Protocol id="Local">
+    <Service id="Logout">
+      <Initiator id="Local" />
+    </Service>
+  </Protocol>
+
+</Protocols>

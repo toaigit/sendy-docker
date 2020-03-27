@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  sendydb:
+    image: {{.Env.DBDOCKER_NAME}}
+    user: "{{.Env.DOCKER_ID}}"
+    container_name: {{.Env.DBDOCKER_NAME}}
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: {{.Env.MYSQL_ROOT_PW}}
+    volumes:
+        - {{.Env.MYSQL_DATA}}:/var/lib/mysql
+        - {{.Env.MYSQL_CONF}}:/etc/mysql/conf.d
+
+  sendyweb:
+    image: {{.Env.DOCKER_NAME}}
+    container_name: {{.Env.DOCKER_NAME}}
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - sendydb
+    environment:
+      JOOMLA_DB_HOST: {{.Env.DBDOCKER_NAME}}:3306
+      JOOMLA_DB_NAME: {{.Env.MYSQL_DATABASE}}
+      JOOMLA_DB_USER: {{.Env.MYSQL_USER}}
+      JOOMLA_DB_PASSWORD: {{.Env.MYSQL_PASSWORD}}
+    volumes:
+        - {{.Env.WEB_LOG}}:/var/log/apache2
+        - {{.Env.WEB_LOG}}:/var/log/shibboleth 
+        - {{.Env.WEB_ROOT}}:/var/www/html
+        - {{.Env.WEB_CONF}}/php.ini:/etc/php/7.4/apache2/php.ini
+        - {{.Env.WEB_CERT}}/sp-key.pem:/etc/shibboleth2/sp-key.pem 
+        - {{.Env.WEB_CERT}}/sp-cert.pem:/etc/shibboleth2/sp-cert.pem 
+        - {{.Env.WEB_CERT}}/apache-cert.pem:/etc/shibboleth2/apache-cert.pem 
+        - {{.Env.WEB_CERT}}/apache-key.pem:/etc/shibboleth2/apache-key.pem 
+        - {{.Env.WEB_CERT}}/apache-chain.pem:/etc/shibboleth2/apache-chain.pem 
+

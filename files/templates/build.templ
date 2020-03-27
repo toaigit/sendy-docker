@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+docker network create {{.Env.NETWORK_NAME}}
+docker image build --network {{.Env.NETWORK_NAME}} -t {{.Env.DOCKER_NAME}} -f {{.Env.DOCKER_FILE}} .
+docker image build --network {{.Env.NETWORK_NAME}} -t {{.Env.DBDOCKER_NAME}} -f {{.Env.DBDOCKER_FILE}} .
+

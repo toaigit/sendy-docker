@@ -1,0 +1,27 @@
+#!/bin/bash
+
+docker network inspect {{.Env.NETWORK_NAME}}
+if [ $? -eq 1 ]; then
+   docker network create {{.Env.NETWORK_NAME}}
+fi
+
+docker container run --network {{.Env.NETWORK_NAME}} \
+    --detach \
+    --rm \
+    --name {{.Env.DOCKER_NAME}} \
+    -p {{.Env.HOST_HTTP}}:{{.Env.HTTP_PORT}} -p {{.Env.HOST_HTTPS}}:{{.Env.HTTPS_PORT}} \
+    -v {{.Env.WEB_CERT}}/sp-cert.pem:/etc/shibboleth2/sp-cert.pem \
+    -v {{.Env.WEB_CERT}}/sp-key.pem:/etc/shibboleth2/sp-key.pem \
+    -v {{.Env.WEB_CERT}}/apache-cert.pem:/etc/shibboleth2/apache-cert.pem \
+    -v {{.Env.WEB_CERT}}/apache-key.pem:/etc/shibboleth2/apache-key.pem \
+    -v {{.Env.WEB_CERT}}/apache-chain.pem:/etc/shibboleth2/apache-chain.pem \
+    -v {{.Env.WEB_LOG}}:/var/log/shibboleth \
+    {{.Env.DOCKER_NAME}}
+
+docker container run --network {{.Env.NETWORK_NAME}} \
+    --detach \
+    --rm \
+    --name {{.Env.DBDOCKER_NAME}} \
+    -v {{.Env.MYSQL_DATA}}:/var/lib/mysql {{.Env.DBDOCKER_NAME}}
+    
+

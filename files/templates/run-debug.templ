@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+PORT_HTTP={{.Env.HTTP_PORT}}
+PORT_HTTPS={{.Env.HTTPS_PORT}}
+
+docker network inspect {{.Env.NETWORK_NAME}}
+if [ $? -eq 1 ]; then
+   docker network create {{.Env.NETWORK_NAME}}
+fi
+
+docker container run --network {{.Env.NETWORK_NAME}} \
+    -it \
+    --rm \
+    --name {{.Env.DOCKER_NAME}} \
+    -p {{.Env.HOST_HTTP}}:$PORT_HTTP -p {{.Env.HOST_HTTPS}}:$PORT_HTTPS \
+    -v {{.Env.WEB_LOG}}:/var/log/shibboleth \
+    {{.Env.DOCKER_NAME}}
+

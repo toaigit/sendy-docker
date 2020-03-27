@@ -1,0 +1,70 @@
+<SPConfig
+   xmlns="urn:mace:shibboleth:2.0:native:sp:config"
+   xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
+   xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+   xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"   
+   xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+   clockSkew="180">
+
+  <ApplicationDefaults
+     entityID="{{.Env.ENTITY_ID}}"
+     REMOTE_USER="uid eppn">
+     <Sessions
+         lifetime="28800"
+         timeout="600"
+         relayState="ss:mem"
+         checkAddress="false"
+         handlerSSL="true"
+         cookieProps="; path=/; secure; HttpOnly">
+      <SSO entityID="{{.Env.IDP_EntityID}}">SAML2</SSO>
+      <Logout>Local</Logout>
+      <Handler type="MetadataGenerator" Location="/Metadata" signing="true"/>
+      <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
+      <Handler type="Session" Location="/Session" showAttributeValues="true"/>
+   </Sessions>
+
+    <Errors
+      supportContact="yourteam@lists.s.e"
+      helpLocation="/about.html"
+      styleSheet="/shibboleth-sp/main.css"/>
+
+    <MetadataProvider
+        type="XML"
+        uri="{{.Env.IDP_METADATA}}"
+        backingFilePath="/var/log/shibboleth/metadata.xml"
+        reloadInterval="7200">
+    </MetadataProvider>
+
+    <AttributeExtractor
+       type="XML"
+       validate="true"
+       reloadChanges="false"
+       path="attribute-map.xml"/>      
+
+    <AttributeFilter
+       type="XML"
+       validate="true"
+       path="attribute-policy.xml"/>
+
+    <CredentialResolver
+       type="File"
+       key="sp-key.pem"
+       certificate="sp-cert.pem"/>
+ 
+
+  </ApplicationDefaults>
+
+  <!-- DO NOT EDIT BELOW -->
+
+  <SecurityPolicyProvider
+     type="XML"
+     validate="true"
+     path="security-policy.xml"/>
+
+  <ProtocolProvider
+     type="XML"
+     validate="true"
+     reloadChanges="false"
+     path="protocols.xml"/>
+
+</SPConfig>

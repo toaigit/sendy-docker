@@ -1,0 +1,3 @@
+FROM mysql:8.0.19
+
+ADD sendy.cnf /etc/mysql/conf.d/sendy.cnf

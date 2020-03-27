@@ -1,0 +1,55 @@
+FROM debian:buster-slim
+
+MAINTAINER Tony Vo <t4tony@yahoo.com>
+
+RUN apt-get -qq update && \
+    apt-get -qq -y --no-install-recommends install \
+        apt-transport-https ca-certificates curl gnupg2 software-properties-common \
+        apache2 wget \
+        libapache2-mod-shib2 && \
+    a2enmod rewrite && \
+    a2enmod ssl && \
+    a2ensite default-ssl && \
+    mkdir /etc/apache2/certs && \
+    mkdir -p /var/www/html/secure && \
+    rm -rf /var/lib/apt/lists/*
+
+
+RUN wget -q https://packages.sury.org/php/apt.gpg -O- | apt-key add -  && \
+    echo "deb https://packages.sury.org/php/ buster main" | tee /etc/apt/sources.list.d/php.list
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4 php-curl php-xml php-mysql
+
+COPY files/apache/ports.conf /etc/apache2/ports.conf
+COPY files/apache/apache-cert.pem \
+     files/apache/apache-chain.pem \
+     /etc/ssl/certs/
+
+COPY files/apache/apache-key.pem \
+     /etc/ssl/private/
+
+COPY files/apache/default-ssl.conf \
+     files/apache/000-default.conf \
+     /etc/apache2/sites-available/
+
+COPY files/apache/secure.html \
+     /var/www/html/secure/
+
+COPY files/apache/shibd-apache2 \
+     /usr/local/sbin/
+
+COPY files/shibb/sp-cert.pem \
+     files/shibb/sp-key.pem \
+     files/shibb/shibboleth2.xml \
+     files/shibb/attribute-map.xml \
+     files/shibb/protocols.xml \
+     /etc/shibboleth/
+
+RUN cd /etc/shibboleth && \
+    chown _shibd sp-*.pem && \
+    chmod go= sp-key.pem
+
+EXPOSE 7080 7443
+
+ENTRYPOINT ["shibd-apache2"]

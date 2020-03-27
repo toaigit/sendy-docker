@@ -1,0 +1,14 @@
+#!/bin/bash
+#  dbinit - initialize the database 
+docker run -d --name {{.Env.DBDOCKER_NAME}} --network {{.Env.NETWORK_NAME}} \
+	   -u {{.Env.DOCKER_ID}} \
+           -v {{.Env.MYSQL_DATA}}:/var/lib/mysql \
+           -v {{.Env.MYSQL_LOG}}:/var/log \
+	   -v {{.Env.MYSQL_CONF}}:/etc/mysql/conf.d \
+           -e MYSQL_ROOT_PASSWORD={{.Env.MYSQL_ROOT_PW}} \
+           -e MYSQL_DATABASE={{.Env.MYSQL_DATABASE}} \
+           -e MYSQL_PASSWORD={{.Env.MYSQL_PASSWORD}} \
+           -e MYSQL_USER={{.Env.MYSQL_USER}} {{.Env.DBDOCKER_NAME}}
+
+echo "You may need to change the password with mysql_native_password"
+echo "alter user {{.Env.MYSQL_USER}} identified with mysql_native_password by '{{.Env.MYSQL_PASSWORD}}';"
